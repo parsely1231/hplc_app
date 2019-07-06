@@ -1,14 +1,9 @@
-from main_tk import filepath
-
-with open(filepath, 'r') as file_open:
-    #後で開くファイルをGUIで選択するようにする
-
+with open('rawdata.txt', 'r') as file_open:
     datatable = []
     #2次元配列用の空リスト
 
     datatable_dict = {}
     #2次元配列を複数入れるための辞書
-
     samplelist = []
     #サンプルネームの空リスト
 
@@ -33,7 +28,6 @@ with open(filepath, 'r') as file_open:
         datatable_dict[datatable_name] = datatable
         datatable = []
         #直近のサンプル名をkeyにして作成中の２次元配列をvalueにする。
-        #その後２次元配列の中身をからにする
-print(samplelist)
+        #その後２次元配列の中身をからにするdatatable = []
+
 print(datatable_dict)
-print("finish")

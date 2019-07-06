@@ -2,14 +2,15 @@ import openpyxl as excel
 from openfile import samplelist
 from openfile import datatable_dict
 
+
 wb = excel.Workbook()
 ws = wb.active
 
-row_no = 2
-y = row_no
+row_num = 2
+y = row_num
 
-colmun_no = 2
-x = colmun_no
+column_num = 2
+x = column_num
 
 for sample in samplelist:
     ws.cell(y, x, sample)
@@ -35,7 +36,6 @@ for sample in samplelist:
     #for datalistから抜けたら列を右に十分にずらして、行を元（二行目）に戻す
 
 ws2 = wb.create_sheet('sheet2')
-
 
 wb.save('sample.xlsx')
 
