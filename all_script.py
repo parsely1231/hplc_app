@@ -54,13 +54,11 @@ def readfile():
                 datatable.append(float_list)
                 # 読み込んだ一行のデータを、floatリストにする
                 # その後２次元配列用の空リストに入れる
-                print(datatable)
                 continue
 
             elif not datatable == []:
                 datatable_name = samplelist[n]
                 datatable_dict[datatable_name] = datatable
-                print(datatable_dict)
                 datatable = []
                 # 直近のサンプル名をkeyにして作成中の２次元配列をvalueにする。
                 # その後２次元配列の中身をからにする
