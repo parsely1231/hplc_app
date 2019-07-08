@@ -3,6 +3,7 @@ import openpyxl as excel
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 
 
 datatable = []
@@ -100,6 +101,18 @@ def convert():
         std_rt_y = y
         # std_rtのセル位置をあとで使う用の変数
 
+        if rrt_check_val.get():  # rrt_checkboxがONの時、std_rtを記入（RTリストから近いのを選ぶ）
+            fl_var = float(std_rt_entry.get())
+            std_rt_list = [std_rt for std_rt in rt_list if fl_var - 0.2 < std_rt < fl_var + 0.2]
+
+            if not std_rt_list == []:
+                ws.cell(y, x, std_rt_list[0])
+            else:
+                pass
+
+        else:
+            pass
+
         y = 4  # 3行目に戻る(RT等のカラムタイトルが書かれている行の１個下)
         x += 1  # 1列右にずらしてRTの下からRRTの下に移動
 
@@ -166,11 +179,12 @@ def convert_button_clicked():  # 選んだファイルを読み込んでエク�
     convert()
     root.savefile = filedialog.asksaveasfilename(initialdir="/", title="Save as", filetypes=[("xlsx file", "*.xlsx")])
     wb.save(root.savefile)
+    messagebox.showinfo('message', 'Operation has completed successfully')
 
 
 if __name__ == '__main__':
     root = Tk()
-    root.title(u'HPLC txt to csv')
+    root.title(u'HPLC txt to xlsx')
     root.geometry('600x400')
 
     static1 = ttk.Label(root, text='変換元のテキストファイルを選んでください')
@@ -182,6 +196,15 @@ if __name__ == '__main__':
 
     fileselect_button = ttk.Button(root, text=u'file select', width=10, command=fileselect_button_clicked)
     fileselect_button.pack()
+
+    rrt_check_val = BooleanVar()
+    rrt_check_val.set(False)
+    rrt_check = ttk.Checkbutton(root, text=u'RRTを計算する', variable=rrt_check_val)
+    rrt_check.pack()
+
+    var = IntVar()
+    std_rt_entry = ttk.Entry(root, textvariable=var, width=20)
+    std_rt_entry.pack()
 
     convert_button = ttk.Button(root, text=u'convert', width=10, command=convert_button_clicked)
     convert_button.pack()
