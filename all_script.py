@@ -87,91 +87,40 @@ def convert():
         area_list = [datalist[1] for datalist in datatable_dict[sample]]  # ２次元配列の各リストの2つ目の要素をリスト化（RT）
         areaper_list = [datalist[2] for datalist in datatable_dict[sample]]  # ２次元配列の各リストの3つ目の要素をリスト化（RT）
 
-        x += 1  # １列右にずらしてnameの下からRTの下に移動
-        for rt_data in rt_list:
-            # rt_listからrt_dataを取り出し
+        totalarea_formula = '=SUM(' + ws.cell(4, x+3).coordinate + ':' + ws.cell(3+len(area_list), x+3).coordinate + ')'
+
+        for rt_data, area_data, areaper_data in zip(rt_list, area_list, areaper_list):
+            # listからdataを取り出し
             y += 1
-            ws.cell(y, x, rt_data)
+            rrt_formula = '=ROUND(' + ws.cell(y, x+1).coordinate + \
+                          '/' + ws.cell(5 + len(rt_list), x+1).coordinate + ', 2)'  # formula(RT/stdRT)
+            areaper_formula = '=' + ws.cell(y, x+3).coordinate + \
+                              '/' + ws.cell(5+len(area_list), x+3).coordinate  # formula(Area/totalArea)
+
+            ws.cell(y, x+1, rt_data)  # write RT
+            ws.cell(y, x+2, rrt_formula)  # write RRT
+            ws.cell(y, x+3, area_data)  # write Area
+            ws.cell(y, x+4, areaper_data)  # write Area%
+            ws.cell(y, x+5, areaper_formula)  # write 補正Area%
             # 行を下にずらしながらセルに記入
 
-        y += 2
-        ws.cell(y, x-1, '基準RT')
-
-        std_rt_x = x
-        std_rt_y = y
-        # std_rtのセル位置をあとで使う用の変数
+        ws.cell(y+2, x, '基準RT')
+        ws.cell(y+2, x+2, 'total Area')
+        ws.cell(y+2, x+3, totalarea_formula)
+        # SUM関数を文字列としてエクセルに記入,total areaを計算させる。
 
         if rrt_check_val.get():  # rrt_checkboxがONの時、std_rtを記入（RTリストから近いのを選ぶ）
             fl_var = float(std_rt_entry.get())
             std_rt_list = [std_rt for std_rt in rt_list if fl_var - 0.2 < std_rt < fl_var + 0.2]
 
             if not std_rt_list == []:
-                ws.cell(y, x, std_rt_list[0])
+                ws.cell(y+2, x+1, std_rt_list[0])
             else:
                 pass
 
-        else:
-            pass
-
-        y = 4  # 3行目に戻る(RT等のカラムタイトルが書かれている行の１個下)
-        x += 1  # 1列右にずらしてRTの下からRRTの下に移動
-
-        length = len(rt_list)
-        while y < 4+length:
-            ws.cell(y, x,
-                    '='
-                    + ws.cell(y, x-1).coordinate
-                    + '/'
-                    + ws.cell(std_rt_y, std_rt_x).coordinate)
-            y += 1
-            # RTをstd_RTで割ってRRTを計算させる
-
-        y = 3
-        x += 1  # 1列右にずらしてRRTの下からAreaの下に移動
-
-        for area_data in area_list:
-            # area_listからarea_dataを取り出し
-            y += 1
-            ws.cell(y, x, area_data)
-            # 行を下にずらしながらセルに記入
-
-        y += 2
-        ws.cell(y, x,
-                '=SUM('
-                + ws.cell(4, x).coordinate
-                + ':'
-                + ws.cell(y-2, x).coordinate
-                + ')')
-        # SUM関数を文字列としてエクセルに記入,total areaを計算させる。
-
-        ws.cell(y, x-1, 'total Area')
-        totalarea_x = x
-        totalarea_y = y
-        # totalareaのセル位置をあとで使う用の変数
-
-        y = 3
-        x += 1  # 1列右にずらしてAreaの下からArea%の下に移動
-
-        for areaper_data in areaper_list:
-            # areaper_listからareaper_dataを取り出し
-            y += 1
-            ws.cell(y, x, areaper_data)
-            # 行を下にずらしながらセルに記入
-
-        y = 4
-        x += 1  # 1列右にずらしてAreaの下からArea%の下に移動
-
-        while y < 4+length:
-            ws.cell(y, x,
-                    '='
-                    + ws.cell(y, x-2).coordinate
-                    + '/'
-                    + ws.cell(totalarea_y, totalarea_x).coordinate)
-            y += 1
-
-        x += 2
+        x += 7
         y = 2
-        # fordatalistから抜けたら列を右に2列ずらして、行を元（二行目）に戻す
+        # for xx_data から抜けたら列を右に6列ずらして、行を二行目に戻す
 
 
 def convert_button_clicked():  # 選んだファイルを読み込んでエクセルファイルに変換する（ボタンを押した時に実行）
@@ -191,20 +140,29 @@ if __name__ == '__main__':
     static1.pack()
 
     filename = StringVar()
-    filename_entry = ttk.Entry(root, textvariable=filename, width=50)
+    filename_entry = ttk.Entry(root, textvariable=filename, width=40)
     filename_entry.pack()
 
     fileselect_button = ttk.Button(root, text=u'file select', width=10, command=fileselect_button_clicked)
     fileselect_button.pack()
 
+    midframe = ttk.Frame(root, padding=20)
+    midframe.pack()
+
     rrt_check_val = BooleanVar()
     rrt_check_val.set(False)
-    rrt_check = ttk.Checkbutton(root, text=u'RRTを計算する', variable=rrt_check_val)
-    rrt_check.pack()
+    rrt_check = ttk.Checkbutton(midframe, text=u'RRTを計算する', variable=rrt_check_val)
+    rrt_check.grid(row=0, sticky=W)
+
+    rrtlabel = ttk.Label(midframe, text='基準とするRTの値を入力して下さい')
+    rrtlabel.grid(row=1, column=0, sticky=W)
 
     var = IntVar()
-    std_rt_entry = ttk.Entry(root, textvariable=var, width=20)
-    std_rt_entry.pack()
+    std_rt_entry = ttk.Entry(midframe, textvariable=var, width=15)
+    std_rt_entry.grid(row=1, column=1, sticky=W)
+
+    infolabel = ttk.Label(midframe, text='※入力値±0.2から実測値を拾います')
+    infolabel.grid(row=2, column=0, sticky=W)
 
     convert_button = ttk.Button(root, text=u'convert', width=10, command=convert_button_clicked)
     convert_button.pack()
