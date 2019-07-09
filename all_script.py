@@ -23,7 +23,7 @@ filepath = ''
 
 def fileselect_button_clicked():  # 変換するファイルを選ぶ関数（ボタンを押した時に実行）
     ftype = [('text file', '*.txt')]
-    idir = os.path.abspath(os.path.dirname(__file__))
+    idir = os.path.abspath(os.path.dirname(sys.argv[0]))
     global filepath
     filepath = filedialog.askopenfilename(filetypes=ftype, initialdir=idir)
     filename.set(filepath)
